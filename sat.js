@@ -89,13 +89,14 @@ function readVariables(clauses) {
     for(const clause of clauses){
 	let vars = clause.split(' ')
 
-	for(const variable in vars){
-	    let variableAsInt = Math.abs(parseInt(variable))
+	vars.map(function (variable) {
+	    let asInt = Math.abs(parseInt(variable))
 
+	    
 	    if(!variables.includes(variableAsInt)){
 		variables.push(variableAsInt)
 	    }
-	}
+	})
     }
 
     return variables
