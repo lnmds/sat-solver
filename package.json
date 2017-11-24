@@ -1,0 +1,22 @@
+{
+  "name": "sat-solver",
+  "version": "1.0.0",
+  "description": "(inefficient) sat solver, javascript, made for [@fernandocastor](https://github.com/fernandocastor)'s IF668 class",
+  "main": "sat-solver.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lnmds/sat-solver.git"
+  },
+  "author": "Luna Mendes",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/lnmds/sat-solver/issues"
+  },
+  "homepage": "https://github.com/lnmds/sat-solver#readme"
+}
