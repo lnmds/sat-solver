@@ -56,6 +56,7 @@ function readProblemSpecification(text, clauses, variables){
 	}
     }
 
+    // TODO: better way
     if(!problemData[0]){
 	return false;
     } else {
@@ -85,19 +86,17 @@ function readClauses(text) {
 // Get variable data from the clause data
 function readVariables(clauses) {
     let variables = []
+    
+    clauses.map((clause) => {
+	clause.split(' ').map((variable) => {
+	    variable = Math.abs(parseInt(variable))
+	    variable = variable.toString()
 
-    for(const clause of clauses){
-	let vars = clause.split(' ')
-
-	vars.map(function (variable) {
-	    let asInt = Math.abs(parseInt(variable))
-
-	    
-	    if(!variables.includes(variableAsInt)){
-		variables.push(variableAsInt)
+	    if(!variables.includes(variable)){
+		variables.push(variable)
 	    }
 	})
-    }
+    })
 
     return variables
 }
