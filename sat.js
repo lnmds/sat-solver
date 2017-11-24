@@ -26,17 +26,17 @@ function doSolve(clauses, initialAssignment) {
 
     // TODO: check if we are in the last assingment
     while (!isSat) {
-	// TODO: evaluate the assingment with the clauses
-	// set the result of evaluation to isSat, plus break the loop
+        // TODO: evaluate the assingment with the clauses
+        // set the result of evaluation to isSat, plus break the loop
 
-	// Continue until we finish all available assignemnts
-	assignment = nextAssignment(assignment)
+        // Continue until we finish all available assignemnts
+        assignment = nextAssignment(assignment)
     }
 
     let result = {isSat, satisfyingAssignment: null}
 
     if (isSat) {
-	result.satisfyingAssignment = assignment
+        result.satisfyingAssignment = assignment
     }
 
     return result
@@ -48,19 +48,19 @@ function readProblemSpecification(text, clauses, variables){
     let problemData = []
     
     for(const line of text){
-	if(!line) continue;
+        if(!line) continue;
 
-	let prefix = line.charAt(0)
-	if(prefix == 'p') {
-	    // TODO: parse problem
-	}
+        let prefix = line.charAt(0)
+        if(prefix == 'p') {
+            // TODO: parse problem
+        }
     }
 
     // TODO: better way
     if(!problemData[0]){
-	return false;
+        return false;
     } else {
-	return true;
+        return true;
     }
 
 }
@@ -70,14 +70,14 @@ function readClauses(text) {
     let clauses = []
 
     for(const line of text){
-	if(!line) continue;
+        if(!line) continue;
 
-	let prefix = line.charAt(0)
+        let prefix = line.charAt(0)
 
-	// ignore comments and the problem description
-	if(prefix != 'c' && prefix != 'p') {
-	    clauses.push(line)
-	}
+        // ignore comments and the problem description
+        if(prefix != 'c' && prefix != 'p') {
+            clauses.push(line)
+        }
     }
 
     return clauses
@@ -88,14 +88,14 @@ function readVariables(clauses) {
     let variables = []
     
     clauses.map((clause) => {
-	clause.split(' ').map((variable) => {
-	    variable = Math.abs(parseInt(variable))
-	    variable = variable.toString()
+        clause.split(' ').map((variable) => {
+            variable = Math.abs(parseInt(variable))
+            variable = variable.toString()
 
-	    if(!variables.includes(variable)){
-		variables.push(variable)
-	    }
-	})
+            if(!variables.includes(variable)){
+                variables.push(variable)
+            }
+        })
     })
 
     return variables
@@ -116,15 +116,15 @@ function readFormula(fileName) {
     let specOk = checkProblemSpecification(text, clauses, variables)
 
     let result = {
-	clauses: [],
-	variables: []
+        clauses: [],
+        variables: []
     }
 
     if (specOk) {
-	result = {
-	    clauses,
-	    variables,
-	}
+        result = {
+            clauses,
+            variables,
+        }
     }
 
     return result
