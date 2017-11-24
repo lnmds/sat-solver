@@ -4,24 +4,24 @@
  *
  * Licensed under MIT
  */
-const fs = require('fs')
+const fs = require('fs');
 
 exports.solve = function(fileName) {
-    let formula = readFormula(fileName)
-    let result = doSolve(formula.clauses, formula.variables)
-    return result // two fields: isSat and satisfyingAssignment
-}
+    let formula = readFormula(fileName);
+    let result = doSolve(formula.clauses, formula.variables);
+    return result; // two fields: isSat and satisfyingAssignment
+};
 
 // Receives the current assignment and produces the next one
 function nextAssignment(currentAssignment) {
     // TODO: implement
-    return []
+    return [];
 }
 
 // solve SAT for the given formula(in clauses, array)
 // with the initial state of assignemnt
 function doSolve(clauses, initialAssignment) {
-    let isSat = false
+    let isSat = false;
     let assignemnt = initialAssignment;
 
     // TODO: check if we are in the last assingment
@@ -30,27 +30,27 @@ function doSolve(clauses, initialAssignment) {
         // set the result of evaluation to isSat, plus break the loop
 
         // Continue until we finish all available assignemnts
-        assignment = nextAssignment(assignment)
+        assignment = nextAssignment(assignment);
     }
 
-    let result = {isSat, satisfyingAssignment: null}
+    let result = {isSat, satisfyingAssignment: null};
 
     if (isSat) {
-        result.satisfyingAssignment = assignment
+        result.satisfyingAssignment = assignment;
     }
 
-    return result
+    return result;
 }
 
 // Check if the problem spec is actually valid
 // given our parsing
 function readProblemSpecification(text, clauses, variables){
-    let problemData = []
+    let problemData = [];
     
     for(const line of text){
         if(!line) continue;
 
-        let prefix = line.charAt(0)
+        let prefix = line.charAt(0);
         if(prefix == 'p') {
             // TODO: parse problem
         }
@@ -67,66 +67,66 @@ function readProblemSpecification(text, clauses, variables){
 
 // Get the clauses from the CNF text
 function readClauses(text) {
-    let clauses = []
+    let clauses = [];
 
     for(const line of text){
         if(!line) continue;
 
-        let prefix = line.charAt(0)
+        let prefix = line.charAt(0);
 
         // ignore comments and the problem description
         if(prefix != 'c' && prefix != 'p') {
-            clauses.push(line)
+            clauses.push(line);
         }
     }
 
-    return clauses
+    return clauses;
 }
 
 // Get variable data from the clause data
 function readVariables(clauses) {
-    let variables = []
+    let variables = [];
     
     clauses.map((clause) => {
         clause.split(' ').map((variable) => {
-            variable = Math.abs(parseInt(variable))
-            variable = variable.toString()
+            variable = Math.abs(parseInt(variable));
+            variable = variable.toString();
 
             if(!variables.includes(variable)){
-                variables.push(variable)
+                variables.push(variable);
             }
-        })
-    })
+        });
+    });
 
-    return variables
+    return variables;
 }
 
 function readFormula(fileName) {
-    let data = fs.readFileSync(fileName, {'encoding': 'utf-8'})
-    let text = data.split('\n')
+    let data = fs.readFileSync(fileName, {'encoding': 'utf-8'});
+    let text = data.split('\n');
 
-    let clauses = readClauses(text)
-    console.log('clauses', clauses)
+    let clauses = readClauses(text);
+    console.log('clauses', clauses);
 
-    let variables = readVariables(clauses)
-    console.log('variables', variables)
+    let variables = readVariables(clauses);
+    console.log('variables', variables);
     
     // Check if the problem actually makes sense
     // given its definition and the data we've read.
-    let specOk = checkProblemSpecification(text, clauses, variables)
+    let specOk = checkProblemSpecification(text, clauses, variables);
 
     let result = {
         clauses: [],
         variables: []
-    }
+    };
 
     if (specOk) {
         result = {
             clauses,
             variables,
-        }
+        };
     }
 
-    return result
+    return result;
 }
 
