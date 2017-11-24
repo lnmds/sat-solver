@@ -116,13 +116,15 @@ function readFormula(fileName) {
     let specOk = checkProblemSpecification(text, clauses, variables)
 
     let result = {
-	'clauses': [],
-	'variables': []
+	clauses: [],
+	variables: []
     }
 
     if (specOk) {
-	result.clauses = clauses
-	result.variables = variables
+	result = {
+	    clauses,
+	    variables,
+	}
     }
 
     return result
