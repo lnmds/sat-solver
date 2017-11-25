@@ -45,12 +45,6 @@ function toAssignment(num, len) {
     return assignment;
 }
 
-// Receives the current assignment and produces the next one
-// Yes, I have the shittiest gambiarra(tm) for this.
-function nextAssignment(oldState) {
-    return oldState + 1;
-}
-
 // Apply an assignment of vars to the formula
 function apply(state, variables, clauses) {
     let assignment = toAssignment(state, variables.length);
@@ -101,10 +95,11 @@ function doSolve(clauses, variables) {
     let currentState = 0;
 
     while (!isSat && currentState <= maxState) {
-
+        // Reduce I/O usage
         if(currentState % 10000 == 0){
             console.log('state', currentState, '/', maxState);
         }
+
         let result = apply(currentState, variables, clauses);
         if(result) {
             isSat = true;
@@ -112,12 +107,15 @@ function doSolve(clauses, variables) {
         }
 
         // Continue until we finish all available assignemnts
-        currentState = nextAssignment(currentState);
+        currentState += 1;
     }
 
-    console.log('state finish:', currentState);
+    console.log('state finish:', currentState - 1);
 
-    let result = {isSat, satisfyingAssignment: null};
+    let result = {
+        isSat,
+        satisfyingAssignment: null
+    };
 
     if (isSat) {
         result.satisfyingAssignment = toAssignment(currentState, vars);
@@ -129,9 +127,7 @@ function doSolve(clauses, variables) {
 // Check if the problem spec is actually valid
 // given our parsing
 function checkProblemSpecification(text, clauses, variables){
-    let total_vars;
-    let total_clauses;
-    
+    let total_vars, total_clauses;
     for(const line of text){
         if(!line) continue;
 
@@ -147,7 +143,9 @@ function checkProblemSpecification(text, clauses, variables){
     console.log('variables', variables.length, total_vars);
 
     return (clauses.length == total_clauses) &&
-        (variables.length == total_vars);
+        (variables.length == total_vars)
+        /* this is here since the CNF file might not have the "p" line */
+        || !(total_clauses && total_vars);
 }
 
 // Get the clauses from the CNF text
@@ -166,6 +164,8 @@ function readClauses(text) {
         }
 
         for(const varb of line.split(' ')){
+            // if its 0, we push the current clause into the list
+            // of clauses, and work on the next one
             if(varb == '0'){
                 clauses.push(current);
                 current = [];
@@ -197,8 +197,7 @@ function readVariables(clauses) {
 }
 
 function readFormula(fileName) {
-    // Why encoding... WHY!?!?!?!
-    let data = fs.readFileSync(fileName, {'encoding': 'utf-8'});
+    let data = fs.readFileSync(fileName, {encoding: 'utf-8'});
     let text = data.split('\n');
 
     let clauses = readClauses(text);
