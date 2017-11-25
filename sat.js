@@ -55,8 +55,6 @@ function nextAssignment(oldState) {
 function apply(state, variables, clauses) {
     let assignment = toAssignment(state, variables.length);
 
-    console.log('applying', assignment, variables, clauses);
-
     let clauseResults = [];
     for(const clause of clauses){
         // each clause is an array of strings
@@ -104,7 +102,9 @@ function doSolve(clauses, variables) {
 
     while (!isSat && currentState <= maxState) {
 
-        console.log('we are at state', currentState);
+        if(currentState % 10000 == 0){
+            console.log('state', currentState, '/', maxState);
+        }
         let result = apply(currentState, variables, clauses);
         if(result) {
             isSat = true;
@@ -114,6 +114,8 @@ function doSolve(clauses, variables) {
         // Continue until we finish all available assignemnts
         currentState = nextAssignment(currentState);
     }
+
+    console.log('state finish:', currentState);
 
     let result = {isSat, satisfyingAssignment: null};
 
@@ -136,10 +138,13 @@ function checkProblemSpecification(text, clauses, variables){
         let prefix = line.charAt(0);
         if(prefix == 'p') {
             let _problem = line.split(' ');
-            total_vars = _problem[2];
-            total_clauses = _problem[3];
+            total_vars = parseInt(_problem[2]);
+            total_clauses = parseInt(_problem[3]);
         }
     }
+
+    console.log('clauses', clauses.length, total_clauses);
+    console.log('variables', variables.length, total_vars);
 
     return (clauses.length == total_clauses) &&
         (variables.length == total_vars);
@@ -150,8 +155,9 @@ function readClauses(text) {
     let clauses = [];
     let current = [];
 
-    for(const line of text){
-        if(!line) continue;
+    for(const textLine of text){
+        if(!textLine) continue;
+        let line = textLine.replace(/\s+/g, ' ');
         let prefix = line.charAt(0);
 
         // ignore comments and the problem description
@@ -181,7 +187,7 @@ function readVariables(clauses) {
             variable = Math.abs(parseInt(variable));
             variable = variable.toString();
 
-            if(!variables.includes(variable)){
+            if(!variables.includes(variable) && variable != 'NaN'){
                 variables.push(variable);
             }
         });
