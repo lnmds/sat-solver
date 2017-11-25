@@ -28,7 +28,6 @@ function toBinary(num, state){
 
 function toAssignment(num, len) {
     let asBin = toBinary(num, '');
-    console.log(asBin);
     let assignment = [];
 
     for(const b of asBin){
@@ -38,8 +37,6 @@ function toAssignment(num, len) {
             assignment.push(false);
         }    
     }
-
-    console.log(assignment);
 
     while(assignment.length < len){
         assignment.unshift(false);
@@ -57,18 +54,43 @@ function nextAssignment(oldState) {
 // Apply an assignment of vars to the formula
 function apply(state, variables, clauses) {
     let assignment = toAssignment(state, variables.length);
-    console.log(assignment, variables, clauses);
+
+    console.log('applying', assignment, variables, clauses);
 
     let clauseResults = [];
     for(const clause of clauses){
+        // each clause is an array of strings
+        let processed = [];
+
+        for(const variable of clause){
+            let varInt = parseInt(variable);
+            let abs = Math.abs(varInt);
+            let inAssignment = assignment[abs - 1];
+
+            if(varInt < 0){
+                // NOT it
+                processed.push(!inAssignment);
+            } else {
+                // keep it as is
+                processed.push(inAssignment);
+            }
+        }
         
+        let cResult = processed[0];
+        for(const vResult of processed.slice(1)){
+            cResult = cResult || vResult;
+        }
+
+        clauseResults.push(cResult);
     }
 
+    // do the ANDs between clauses
     let result = clauseResults[0];
     for(const cResult of clauseResults.slice(1)){
-        
+        result = result && cResult;
     }
-    return true;
+
+    return result;
 }
 
 // solve SAT for the given formula(in clauses, array)
@@ -80,10 +102,9 @@ function doSolve(clauses, variables) {
     let maxState = Math.pow(2, vars);
     let currentState = 0;
 
-    console.log(currentState, maxState);
- 
-    while (!isSat && currentState < maxState) {
- 
+    while (!isSat && currentState <= maxState) {
+
+        console.log('we are at state', currentState);
         let result = apply(currentState, variables, clauses);
         if(result) {
             isSat = true;
