@@ -86,21 +86,26 @@ function apply(assignment, variables, clauses) {
             }
         }
         
-        let cResult = processed[0];
-        for(const vResult of processed.slice(1)){
-            cResult = cResult || vResult;
+        // OR between variables
+        let done = false;
+
+        for(const vResult of processed){
+            if(vResult) {
+                clauseResults.push(true);
+                done = true;
+                break;
+            }
         }
 
-        clauseResults.push(cResult);
+        if (!done) clauseResults.push(false);
     }
 
     // do the ANDs between clauses
-    let result = clauseResults[0];
-    for(const cResult of clauseResults.slice(1)){
-        result = result && cResult;
+    for(const cResult of clauseResults){
+        if(!cResult) return false;
     }
 
-    return result;
+    return true;
 }
 
 // solve SAT for the given formula(in clauses, array)
