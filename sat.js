@@ -46,10 +46,12 @@ function toAssignment(num, len) {
 }
 
 // Apply an assignment of vars to the formula
-function apply(state, variables, clauses) {
-    let assignment = toAssignment(state, variables.length);
+async function apply(state, variables, clauses) {
+    // console.log(state, variables, clauses);
 
+    let assignment = toAssignment(state, variables.length);
     let clauseResults = [];
+
     for(const clause of clauses){
         // each clause is an array of strings
         let processed = [];
@@ -82,7 +84,7 @@ function apply(state, variables, clauses) {
         result = result && cResult;
     }
 
-    return result;
+    return [result, state];
 }
 
 // solve SAT for the given formula(in clauses, array)
@@ -95,19 +97,39 @@ function doSolve(clauses, variables) {
     let currentState = 0;
 
     while (!isSat && currentState <= maxState) {
-        // Reduce I/O usage
+        // Reduce I/O usage by not using
+        // a fuckton of console.log
         if(currentState % 10000 == 0){
             console.log('state', currentState, '/', maxState);
         }
 
-        let result = apply(currentState, variables, clauses);
-        if(result) {
-            isSat = true;
-            break;
+        // async, why not?
+        let promises = [];
+        for (let i = currentState; i <= currentState + 10; i++) {
+            if(i > maxState) continue;
+
+            let p = apply(i, variables, clauses);
+            promises.push(p);
         }
 
+        let pResults = Promise.all(promises);
+
+        pResults.then((results) => {
+            for (const result of results) {
+                let val = result[0];
+                let state = result[1];
+
+                if (result) {
+                    currentState = state;
+                    isSat = true;
+                }
+            }
+        })
+
+        promises = [];
+
         // Continue until we finish all available assignemnts
-        currentState += 1;
+        currentState += 10;
     }
 
     console.log('state finish:', currentState - 1);
@@ -187,7 +209,7 @@ function readVariables(clauses) {
             variable = Math.abs(parseInt(variable));
             variable = variable.toString();
 
-            if(!variables.includes(variable) && variable != 'NaN'){
+            if(!variables.includes(variable) && !isNaN(variable)){
                 variables.push(variable);
             }
         });
