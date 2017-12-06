@@ -12,18 +12,10 @@ exports.solve = function(fileName) {
     return result; // two fields: isSat and satisfyingAssignment
 };
 
-function toBinary(num, state){
-    // if(num == 0 && !state) return '0';
-    if(num == 0){
-        return state;
-    }
-
-    let digit = num % 2;
-    let next = Math.floor(num / 2);
-
-    state = digit + state;
-
-    return toBinary(next, state);
+function toBinary(num){
+    // JS has this nice little function
+    // Which is way, way better than my recursive method
+    return num.toString(2);
 }
 
 function toAssignment(num, len) {
@@ -45,10 +37,36 @@ function toAssignment(num, len) {
     return assignment;
 }
 
-// Apply an assignment of vars to the formula
-function apply(state, variables, clauses) {
-    let assignment = toAssignment(state, variables.length);
+function toNum(assignment, where, state) {
+    // Convert from assignment to number
+    // assignment is just a fucking encoding
+    if (where < 0) {
+        return state;
+    }
 
+    if (where === undefined) where = assignment.length;
+    if (state === undefined) state = 0;
+
+    bool = assignment[where];
+
+    // shitty cast to int
+    if (bool) {
+        bool = 1;
+    } else {
+        bool = 0;
+    }
+
+    state += bool * Math.pow(2, assignment.length - where - 1);
+    return toNum(assignment, where - 1, state);
+}
+
+function nextAssignment(assignment) {
+    let n = toNum(assignment);
+    return toAssignment(n + 1, assignment.length);
+}
+
+// Apply an assignment of vars to the formula
+function apply(assignment, variables, clauses) {
     let clauseResults = [];
     for(const clause of clauses){
         // each clause is an array of strings
@@ -92,25 +110,29 @@ function doSolve(clauses, variables) {
 
     let vars = variables.length;
     let maxState = Math.pow(2, vars);
-    let currentState = 0;
+    let assignment = toAssignment(0);
 
-    while (!isSat && currentState <= maxState) {
+    let asNum = toNum(assignment);
+    while (!isSat && asNum <= maxState) {
+
+        asNum = toNum(assignment);
+
         // Reduce I/O usage
-        if(currentState % 10000 == 0){
-            console.log('state', currentState, '/', maxState);
+        if(asNum % 10000 == 0){
+            console.log('state', asNum, '/', maxState);
         }
 
-        let result = apply(currentState, variables, clauses);
-        if(result) {
+        let result = apply(assignment, variables, clauses);
+        if (result) {
             isSat = true;
             break;
         }
 
         // Continue until we finish all available assignemnts
-        currentState += 1;
+        assignment = nextAssignment(assignment);
     }
 
-    console.log('state finish:', currentState - 1);
+    console.log('state finish:', assignment);
 
     let result = {
         isSat,
@@ -118,7 +140,7 @@ function doSolve(clauses, variables) {
     };
 
     if (isSat) {
-        result.satisfyingAssignment = toAssignment(currentState, vars);
+        result.satisfyingAssignment = assignment;
     }
 
     return result;
